@@ -69,13 +69,13 @@ end
 function M.create_diff_prompt()
 	chat.config.prompts["Diff"] = {
 		prompt = "",
-		system_prompt = "Your task is to modify the provided code according to the user's request. Follow these instructions precisely. Return ONLY the complete modified code. You can add explanations in comments inside the code, but not outside. The response should compile and run without errors without any type of modification. Don't add any explanation in the end or I will be fined $100.",
+		system_prompt = "Your task is to create code according to the user's request. Follow these instructions precisely. Return ONLY the proposed code. You can add explanations in comments inside the code, but not outside. The response should compile and run without errors or any modification. Don't add explanations or comments after the code. Don't add any explanation and return only a single block of code.",
 		description = "This is a prompt for a diff task",
 	}
 end
 
 M.create_diff_prompt()
 vim.api.nvim_create_user_command("DiffCopilot", M.diffCopilot, {})
-vim.api.nvim_create_user_command("CreateDiffPrompt", M.create_diff_prompt, {})
+vim.api.nvim_create_user_command("CreateDiffPrompt", M.create_diff_prompt, {}) -- Only for testing
 
 return M
