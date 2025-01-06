@@ -75,10 +75,14 @@ function M.create_diff_prompt()
 end
 
 function M.setup()
-    -- Configuration for diff_copilot.nvim
-    M.create_diff_prompt()
-    vim.api.nvim_create_user_command("DiffCopilot", M.diffCopilot, {})
-    vim.api.nvim_create_user_command("CreateDiffPrompt", M.create_diff_prompt, {}) -- Only for testing
+	-- Configuration for diff_copilot.nvim
+	M.create_diff_prompt()
+	vim.api.nvim_create_user_command("DiffCopilot", M.diffCopilot, {})
+	-- Only for testing
+	--vim.api.nvim_create_user_command("CreateDiffPrompt", M.create_diff_prompt, {})
+
+	-- Configuration for diff_copilot.output (provisional)
+	require("diff_copilot.output").setup()
 end
 
 return M
