@@ -2,11 +2,39 @@ local M = {}
 
 local chat = require("CopilotChat")
 
-function M.diffCopilot()
+local function handleResponse(response)
+	local diff = vim.split(response, "\n")
+	local start_idx, end_idx = nil, nil
+	for i, line in ipairs(diff) do
+		if line:match("^```") then
+			if not start_idx then
+				start_idx = i
+			else
+				end_idx = i
+				break
+			end
+		end
+	end
+
+	if start_idx and end_idx then
+		diff = { unpack(diff, start_idx + 1, end_idx - 1) }
+		vim.cmd("vnew")
+		local new_buf = vim.api.nvim_get_current_buf()
+		vim.api.nvim_buf_set_lines(new_buf, 0, -1, false, diff)
+		vim.cmd("diffthis")
+		vim.api.nvim_command("CopilotChatClose")
+	else
+		print("Diff Error: Invalid response")
+	end
+end
+
+function M.diff_request()
 	vim.cmd("diffthis")
+
 	-- Create a floating window
 	local buf = vim.api.nvim_create_buf(false, true)
 	local width = vim.o.columns
+
 	local height = vim.o.lines
 	local win_width = math.ceil(width * 0.8)
 	local win_height = math.ceil(height * 0.8)
@@ -24,7 +52,6 @@ function M.diffCopilot()
 	}
 
 	local win = vim.api.nvim_open_win(buf, true, opts)
-	local current_buf = vim.api.nvim_get_current_buf()
 
 	-- Set keymap to close the floating window
 	vim.api.nvim_buf_set_keymap(buf, "n", "<Esc>", "<Cmd>bd!<CR>", { noremap = true, silent = true })
@@ -49,40 +76,36 @@ function M.send_input(buf, win)
 
 	chat.ask("/Diff " .. table.concat(lines, "\n"), {
 		callback = function(response)
-			local lines = vim.split(response, "\n")
-			if lines[1]:match("^```") then
-				table.remove(lines, 1)
-			end
-			if lines[#lines]:match("^```") then
-				table.remove(lines, #lines)
-			end
-
-			vim.cmd("vnew")
-			local new_buf = vim.api.nvim_get_current_buf()
-			vim.api.nvim_buf_set_lines(new_buf, 0, -1, false, lines)
-			vim.cmd("diffthis")
+			handleResponse(response)
 		end,
 	})
-	vim.api.nvim_command("CopilotChatClose")
 end
 
-function M.create_diff_prompt()
+function M.process_output()
+	local content = vim.fn.getreg("o")
+	chat.ask("/Diff Fix " .. content, {
+		callback = function(response)
+			handleResponse(response)
+		end,
+	})
+end
+
+local function create_diff_prompt()
 	chat.config.prompts["Diff"] = {
 		prompt = "",
-		system_prompt = "Your task is to create code according to the user's request. Follow these instructions precisely. Return ONLY the proposed code. You can add explanations in comments inside the code, but not outside. The response should compile and run without errors or any modification. Don't add explanations or comments after the code. Don't add any explanation and return only a single block of code.",
+		system_prompt = "Your task is to create code according to the user's request. Follow these instructions precisely. Return ONLY the full file with the proposed change. You can add explanations in comments inside the code, but not outside. The response should compile and run without errors or any modification. Don't add explanations or comments after the code. Don't add any explanation and return only a single block of code.",
 		description = "This is a prompt for a diff task",
 	}
 end
 
 function M.setup()
-	-- Configuration for diff_copilot.nvim
-	M.create_diff_prompt()
-	vim.api.nvim_create_user_command("DiffCopilot", M.diffCopilot, {})
-	-- Only for testing
-	--vim.api.nvim_create_user_command("CreateDiffPrompt", M.create_diff_prompt, {})
+	-- Configuration for diff_request
+	create_diff_prompt()
+	vim.api.nvim_create_user_command("DiffRequest", M.diff_request, {})
 
-	-- Configuration for diff_copilot.output (provisional)
+	-- Configuration for diff_output
 	require("diff_copilot.output").setup()
+	vim.api.nvim_create_user_command("DiffOutput", M.process_output, {})
 end
 
 return M

@@ -126,14 +126,6 @@ function M.setup()
 		end,
 	})
 
-    vim.api.nvim_create_user_command("OutputCopilot", M.process_output, {})
-end
-
-function M.process_output()
-    local content = vim.fn.getreg("o")
-    
-    local chat = require("CopilotChat")
-    chat.ask("/Fix " .. content)
 end
 
 return M
