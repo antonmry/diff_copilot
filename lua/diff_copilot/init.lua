@@ -98,6 +98,10 @@ local function create_diff_prompt()
 	}
 end
 
+function M.send_registry_r_to_terminal()
+	vim.cmd("SlimeSend1 " .. vim.fn.getreg("r"))
+end
+
 function M.setup()
 	-- Configuration for diff_request
 	create_diff_prompt()
@@ -106,6 +110,9 @@ function M.setup()
 	-- Configuration for diff_output
 	require("diff_copilot.output").setup()
 	vim.api.nvim_create_user_command("DiffOutput", M.process_output, {})
+
+	-- Send regitry r to terminal via vim-slime
+	vim.api.nvim_create_user_command("RSend", M.send_registry_r_to_terminal, {})
 end
 
 return M
