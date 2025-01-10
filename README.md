@@ -3,6 +3,11 @@
 This is a Neovim plugin that integrates with GitHub Copilot to provide enhanced
 vimdiff capabilities.
 
+https://github.com/user-attachments/assets/35e64933-bc4f-4cb9-9c5c-a59e30f27b37
+
+https://github.com/user-attachments/assets/7bcfefe1-6ca2-4faa-a3a3-23e843a641a3
+
+
 ## Installation
 
 To install this plugin, you can use your preferred plugin manager. For example,
