@@ -31,16 +31,6 @@ Once installed, you can use the following commands to interact with the plugin:
 `SendR` and `DiffRequest` are intended to be used with
 [antonmry/llm-helper-cli].
 
-## Configuration
-
-You can configure the plugin by adding the following settings to your `init.lua`
-or `init.vim` file:
-
-```lua
--- Example configuration
-vim.g.diff_copilot_setting = true
-```
-
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request on
